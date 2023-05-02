@@ -1,4 +1,4 @@
-import Pos from "./Pos";
+import Pos from "./pos";
 
 export enum BlockType {
     B1,

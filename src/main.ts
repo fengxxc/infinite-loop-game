@@ -10,8 +10,8 @@ import {
     Sprite,
     Texture
 } from "pixi.js";
-import Pos from "./Pos";
-import Block, { BlockType } from "./Block";
+import Pos from "./pos";
+import Block, { BlockType } from "./block";
 import Creater from "./creater";
 import Board from "./board";
 

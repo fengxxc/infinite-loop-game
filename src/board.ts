@@ -1,4 +1,4 @@
-import Block from "./Block"
+import Block from "./block"
 
 export default class Board {
     private grids: Array<Array<Block>>;
