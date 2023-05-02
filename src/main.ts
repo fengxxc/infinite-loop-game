@@ -2,9 +2,11 @@ import "./style.css";
 // import * as PIXI from "pixi.js"
 import {
     Application,
+    BLEND_MODES,
     Container,
     FederatedPointerEvent,
     ICanvas,
+    ParticleContainer,
     Sprite,
     Texture
 } from "pixi.js";
@@ -25,7 +27,7 @@ function init(row: number, col: number) {
         height: height
     });
     document.body.appendChild(app.view as HTMLCanvasElement);
-    const container = new Container();
+    const container = new Container<Sprite>();
     app.stage.addChild(container);
 
     const textureHome: Record<BlockType, Texture> = {
@@ -55,7 +57,7 @@ function init(row: number, col: number) {
             blockSprite.rotation = rotation
             blockSprite.x = (x % col) * 128 - app.screen.width / 2 + 128;
             blockSprite.y = (y % row) * 128 - app.screen.height / 2 + 128;
-            container.addChild(blockSprite);
+            blockSprite.blendMode = BLEND_MODES.MULTIPLY;
             (blockSprite as any).interactive = true;
             (blockSprite as any).on("pointertap", (e: FederatedPointerEvent) => {
                 if (isAnimating) {
@@ -87,9 +89,12 @@ function init(row: number, col: number) {
                 }
                 block.spin(true)
 
-                checkWin(board)
+                if (isWin(board)) {
+                    celebrate(app)
+                }
 
             });
+            container.addChild(blockSprite);
 
             board.put(x, y, block)
             sprite2BlockMap.set(blockSprite, block)
@@ -117,14 +122,36 @@ function randomization(block: Block, blockSprite: Sprite) {
     blockSprite.rotation += (Math.PI / 2) * randomDir
 }
 
-function checkWin(board: Board) {
+function isWin(board: Board): boolean {
     const win: boolean = board.isAllConnected()
     // console.log(win)
-    if (win) {
-        setTimeout(() => {
-            alert("you win~")
-        }, 300);
+    return win
+}
+
+function celebrate(app: Application<ICanvas>) {
+    // alert("you win~")
+    const container = new ParticleContainer()
+    for (let i = 0; i < 100; i++) {
+        const particle = new Sprite(Texture.WHITE);
+        particle.tint = Math.random() * 0xffffff;
+        particle.width = particle.height = Math.random() * 10 + 5;
+        particle.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height * 2 - app.screen.height * 2);
+        container.addChild(particle);
     }
+    app.stage.addChild(container);
+    app.ticker.add(() => {
+        for (let i = 0; i < container.children.length; i++) {
+            const particle = container.children[i];
+            particle.position.y += Math.random() * 10 + 5;
+            if (particle.position.y > app.screen.height) {
+                particle.destroy()
+                container.removeChild(particle);
+            }
+        }
+        if (container.children.length == 0) {
+            container.destroy()
+        }
+    });
 }
 
 init(6, 4);
