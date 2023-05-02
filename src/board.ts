@@ -28,7 +28,6 @@ export default class Board {
     }
 
     public isAllConnected(): boolean {
-        debugger
         for (let y = 0; y < this.grids.length; y++) {
             const row: Array<Block> = this.grids[y]
             for (let x = 0; x < row.length; x++) {

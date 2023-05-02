@@ -15,18 +15,27 @@ import Block, { BlockType } from "./Block";
 import Creater from "./creater";
 import Board from "./board";
 
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+    <div>
+        <h1>infinite loop game</h1>
+        <p>
+            <button id="counter" type="button">refresh</button>
+        </p>
+    </div>
+`
+
 const sprite2BlockMap: Map<Sprite, Block> = new Map()
 let isAnimating = false;
+const width = document.body.offsetWidth * 0.9;
+const height = document.body.offsetHeight - document.querySelector<HTMLDivElement>('#app')!.offsetHeight - 10;
+const app: Application<ICanvas> = new Application({
+    background: "#FCFCFC",
+    width: width,
+    height: height
+});
+document.querySelector<HTMLDivElement>('#app')!.appendChild(app.view as HTMLCanvasElement);
 
 function init(row: number, col: number) {
-    const width = document.body.offsetWidth;
-    const height = document.body.offsetHeight;
-    const app: Application<ICanvas> = new Application({
-        background: "#FCFCFC",
-        width: width,
-        height: height
-    });
-    document.body.appendChild(app.view as HTMLCanvasElement);
     const container = new Container<Sprite>();
     app.stage.addChild(container);
 
@@ -55,8 +64,8 @@ function init(row: number, col: number) {
             blockSprite.anchor.set(0.5);
             const rotation = (Math.PI / 2) * block.dir
             blockSprite.rotation = rotation
-            blockSprite.x = (x % col) * 128 - app.screen.width / 2 + 128;
-            blockSprite.y = (y % row) * 128 - app.screen.height / 2 + 128;
+            blockSprite.x = (x % col) * 128 - app.screen.width / 3 + 96;
+            blockSprite.y = (y % row) * 128 - app.screen.height / 2 + 74;
             blockSprite.blendMode = BLEND_MODES.MULTIPLY;
             (blockSprite as any).interactive = true;
             (blockSprite as any).on("pointertap", (e: FederatedPointerEvent) => {
@@ -134,7 +143,9 @@ function celebrate(app: Application<ICanvas>) {
     for (let i = 0; i < 100; i++) {
         const particle = new Sprite(Texture.WHITE);
         particle.tint = Math.random() * 0xffffff;
-        particle.width = particle.height = Math.random() * 10 + 5;
+        particle.width = Math.random() * 10 + 4;
+        particle.height = Math.random() * 10 + 6;
+        particle.anchor.set(0.5)
         particle.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height * 2 - app.screen.height * 2);
         container.addChild(particle);
     }
@@ -142,7 +153,8 @@ function celebrate(app: Application<ICanvas>) {
     app.ticker.add(() => {
         for (let i = 0; i < container.children.length; i++) {
             const particle = container.children[i];
-            particle.position.y += Math.random() * 10 + 5;
+            particle.position.y += Math.random() * 10 + 7;
+            particle.rotation += Math.random() * 0.3 /* * (Math.round(Math.random()) ? 1 : -1) */
             if (particle.position.y > app.screen.height) {
                 particle.destroy()
                 container.removeChild(particle);
@@ -154,4 +166,13 @@ function celebrate(app: Application<ICanvas>) {
     });
 }
 
-init(6, 4);
+// refresh 
+document.querySelector<HTMLButtonElement>('#counter')!.addEventListener('click', () => {
+    app.stage.children.forEach(container => {
+        container.destroy()
+    })
+    sprite2BlockMap.clear()
+    init(3, 3)
+})
+
+init(3, 3);
