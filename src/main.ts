@@ -40,11 +40,11 @@ function init(row: number, col: number) {
     app.stage.addChild(container);
 
     const textureHome: Record<BlockType, Texture> = {
-        [BlockType.B1]: Texture.from("/block_1.png"),
-        [BlockType.B2]: Texture.from("/block_2.png"),
-        [BlockType.B21]: Texture.from("/block_2-1.png"),
-        [BlockType.B3]: Texture.from("/block_3.png"),
-        [BlockType.B4]: Texture.from("/block_4.png")
+        [BlockType.B1]: Texture.from("./block_1.png"),
+        [BlockType.B2]: Texture.from("./block_2.png"),
+        [BlockType.B21]: Texture.from("./block_2-1.png"),
+        [BlockType.B3]: Texture.from("./block_3.png"),
+        [BlockType.B4]: Texture.from("./block_4.png")
     };
     const board: Board = new Board()
     for (let y = 0; y < row; y++) {
@@ -172,7 +172,7 @@ document.querySelector<HTMLButtonElement>('#counter')!.addEventListener('click',
         container.destroy()
     })
     sprite2BlockMap.clear()
-    init(3, 3)
+    init(6, 4)
 })
 
-init(3, 3);
+init(6, 4);
