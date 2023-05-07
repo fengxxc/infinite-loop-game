@@ -25,7 +25,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 `
 
 const sprite2BlockMap: Map<Sprite, Block> = new Map()
-let isAnimating = false;
 const width = document.body.offsetWidth * 0.9;
 const height = document.body.offsetHeight - document.querySelector<HTMLDivElement>('#app')!.offsetHeight - 10;
 const app: Application<ICanvas> = new Application({
@@ -35,17 +34,20 @@ const app: Application<ICanvas> = new Application({
 });
 document.querySelector<HTMLDivElement>('#app')!.appendChild(app.view as HTMLCanvasElement);
 
+const TEXTURE_HOME: Record<BlockType, Texture> = {
+    [BlockType.B1]: Texture.from("./block_1.svg"),
+    [BlockType.B2]: Texture.from("./block_2.svg"),
+    [BlockType.B21]: Texture.from("./block_2-1.svg"),
+    [BlockType.B3]: Texture.from("./block_3.svg"),
+    [BlockType.B4]: Texture.from("./block_4.svg")
+};
+
+let blockSize = 128
+let isAnimating = false
+
 function init(row: number, col: number) {
     const container = new Container<Sprite>();
     app.stage.addChild(container);
-
-    const textureHome: Record<BlockType, Texture> = {
-        [BlockType.B1]: Texture.from("./block_1.png"),
-        [BlockType.B2]: Texture.from("./block_2.png"),
-        [BlockType.B21]: Texture.from("./block_2-1.png"),
-        [BlockType.B3]: Texture.from("./block_3.png"),
-        [BlockType.B4]: Texture.from("./block_4.png")
-    };
     const board: Board = new Board()
     for (let y = 0; y < row; y++) {
         for (let x = 0; x < col; x++) {
@@ -59,13 +61,15 @@ function init(row: number, col: number) {
             }
             block.pos = new Pos(x, y);
 
-            const texture = textureHome[block.blockType]
+            const texture = TEXTURE_HOME[block.blockType]
             const blockSprite: Sprite = new Sprite(texture);
             blockSprite.anchor.set(0.5);
+            blockSprite.width = blockSize
+            blockSprite.height = blockSize
             const rotation = (Math.PI / 2) * block.dir
             blockSprite.rotation = rotation
-            blockSprite.x = (x % col) * 128 - app.screen.width / 3 + 96;
-            blockSprite.y = (y % row) * 128 - app.screen.height / 2 + 74;
+            blockSprite.x = (x % col) * blockSize - app.screen.width / 2.5 + blockSize / 2;
+            blockSprite.y = (y % row) * blockSize - app.screen.height / 2 + blockSize / 2 + 15;
             blockSprite.blendMode = BLEND_MODES.MULTIPLY;
             (blockSprite as any).interactive = true;
             (blockSprite as any).on("pointertap", (e: FederatedPointerEvent) => {
@@ -75,7 +79,7 @@ function init(row: number, col: number) {
                 isAnimating = true
                 let startRotation = blockSprite.rotation;
                 let endRotation = startRotation + Math.PI / 2;
-                let duration = 240;
+                let duration = 120;
                 let startTime = performance.now();
                 let animate = (time: number) => {
                     let elapsedTime = time - startTime;
@@ -171,6 +175,7 @@ document.querySelector<HTMLButtonElement>('#counter')!.addEventListener('click',
     app.stage.children.forEach(container => {
         container.destroy()
     })
+    app.stage.removeChildren()
     sprite2BlockMap.clear()
     init(6, 4)
 })
